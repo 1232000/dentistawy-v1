@@ -1,52 +1,109 @@
+
+// ==================== DOM Elements ====================
 var emailInput = document.getElementById('email');
 var passwordInput = document.getElementById('password');
 var loginBtn = document.getElementById('loginBtn');
-
 var requiredInput = document.getElementById('requiredInput');
 var incorrectInput = document.getElementById('incorrectInput');
 
-var arrayList = [];
-var USERS_KEY = "users";
+// ==================== API Configuration ====================
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
-if(localStorage.getItem(USERS_KEY) != null){
-    arrayList = JSON.parse(localStorage.getItem(USERS_KEY));
-}
+const apiCall = async (endpoint, options = {}) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
 
-loginBtn.addEventListener('click', function(){
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    const userType = localStorage.getItem('userType');
+    const data = await response.json();
 
-    requiredInput.classList.replace('d-block', 'd-none');
-    incorrectInput.classList.replace('d-block', 'd-none');
-
-    if(email === '' || password === ''){
-        requiredInput.classList.replace('d-none', 'd-block');
-        return;
+    if (!response.ok) {
+      throw new Error(data.error || 'Something went wrong');
     }
 
-    if(userType === 'doctor'){
-        const doctorEmail = "doctor@gmail.com";
-        const doctorPassword = "Doctor123*";
+    return { success: true, data };
+  } catch (error) {
+    console.error('API Error:', error);
+    return { success: false, error: error.message };
+  }
+};
 
-        if(email === doctorEmail && password === doctorPassword){
-            sessionStorage.setItem('currentName', 'Dr.Youmna');
-            sessionStorage.setItem('userType', 'doctor');
-            window.location.href = "doctorHome.html";
-        } else {
-            incorrectInput.textContent = "Incorrect doctor credentials";
-            incorrectInput.classList.replace('d-none', 'd-block');
-        }
+// ==================== Login Function ====================
+const loginUser = async (credentials) => {
+  return await apiCall('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
+};
 
+// ==================== Login Event Listener ====================
+loginBtn.addEventListener('click', async function() {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  const userType = localStorage.getItem('userType') || 'patient';
+  
+  // Hide messages
+  requiredInput.classList.replace('d-block', 'd-none');
+  incorrectInput.classList.replace('d-block', 'd-none');
+  
+  // Validation
+  if (email === '' || password === '') {
+    requiredInput.classList.replace('d-none', 'd-block');
+    return;
+  }
+
+  // Disable button
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Logging in...';
+
+  // Prepare credentials
+  const credentials = {
+    email: email,
+    password: password,
+    user_type: userType
+  };
+
+  // Send to backend
+  const result = await loginUser(credentials);
+
+  // Re-enable button
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Login';
+
+  if (result.success) {
+    console.log('Login successful:', result.data);
+
+    if (userType === 'doctor') {
+      // Doctor login
+      const doctor = result.data.doctor;
+      sessionStorage.setItem('currentName', doctor.name);
+      sessionStorage.setItem('currentDoctorId', doctor.id);
+      sessionStorage.setItem('currentEmail', doctor.email);
+      localStorage.setItem('userType', 'doctor');
+      
+      window.location.href = 'doctorHome.html';
+      
     } else {
-        var user = arrayList.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-
-        if(user){
-            sessionStorage.setItem('currentName', user.name);
-            window.location.href = "home.html";
-        } else {
-            incorrectInput.textContent = "Incorrect email or password";
-            incorrectInput.classList.replace('d-none', 'd-block');
-        }
+      // Patient login
+      const patient = result.data.patient;
+      sessionStorage.setItem('currentName', patient.name);
+      sessionStorage.setItem('currentPatientId', patient.id);
+      sessionStorage.setItem('currentEmail', patient.email);
+      localStorage.setItem('userType', 'patient');
+      
+      // Store full patient data
+      localStorage.setItem('currentUser', JSON.stringify(patient));
+      
+      window.location.href = 'home.html';
     }
+
+  } else {
+    incorrectInput.textContent = result.error;
+    incorrectInput.classList.replace('d-none', 'd-block');
+    console.log('Login error:', result.error);
+  }
 });
