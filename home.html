@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Home</title>
+  <link rel="stylesheet" href="./css style/all.min.css" />
+  <link rel="stylesheet" href="./css style/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="./css style/style.css" />
+  <link rel="shortcut icon" href="./images/logo.png" type="image/x-icon">
+</head>
+
+<body
+  class="bg-success-subtle"
+  cz-shortcut-listen="true"
+  data-bs-spy="scroll"
+  data-bs-target="#navbar-example"
+>
+  <!--MAIN----------------------------------------------------------------------------------------------->
+  <nav class="navbar navbar-expand-lg bg-white position-fixed start-0 end-0 top-0 z-3 shadow-lg">
+    <div class="container mx-auto">
+      <a class="d-flex align-items-center gap-2 text-black fw-bold fs-4" style="width:60px; height:50px;" href="#" >
+        <img src="./images/logo.png" alt="logo">
+        <span class="deg-clr">Dentistawy</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+          <a class="nav-link" href="#about">About</a>
+          <a class="nav-link" href="#services">Services</a>
+          <a class="nav-link" href="#gallery">Gallery</a>
+          <a class="nav-link" href="#contact">Contact</a>
+          <a class="nav-link" href="#reviews">Reviews</a>
+          <div class="ms-5 d-flex bg-danger rounded-5 px-3 justify-content-center align-items-center text-white">
+            <a id="logoutBtn" class="btn w-100 text-white">
+              Logout <i class="fa-solid fa-right-from-bracket ps-1"></i></a>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+<!--HOME----------------------------------------------------------------------------------------------->
+  <section id="home">
+    <div class="dentist-bg w-100 min-vh-100-nav d-flex">
+      <div class="position-absolute end-0 d-flex align-items-center gap-3 light-clr fs-3 p-3">
+        <a type="button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+          <i id="notifications" class="fa-solid fa-bell cursor-pointer"></i>
+        </a>
+
+        <i class="fa-solid fa-user cursor-pointer"></i>
+      </div>
+<!--MODAL----------------------------------------------------------------------------------------------->
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header light-bg border-black">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Notifications</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body light-bg d-flex align-items-center gap-3 fw-bold">
+                Your next appointment at next monday at 8:00 Pm
+                <i id="editTime" class="fa-solid fa-pen-to-square fs-4 text-danger cursor-pointer"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <main class="container d-flex flex-column justify-content-evenly align-items-center">
+        <h1 class="light-clr fs-1 fw-bold">Your Smile, Our Priority</h1>
+        <a href="booking.html">
+         <button class="btn bookBtn fw-bold fs-5 rounded-5 px-4">Book an appointment</button>
+        </a>
+      </main>
+
+  </section>
+
+<!--REVIEWS----------------------------------------------------------------------------------------------->
+  <section id="reviews">
+    <div class="w-100 min-vh-100-nav d-flex light-bg">
+
+      <div class="w-50 pt-66 d-flex flex-column justify-content-start align-items-center">
+        <h2 class="fw-bold pb-5">Write Your Review</h2>
+        <div class="mb-3">
+        <textarea class="form-control" cols="80" rows="3"></textarea>
+        <button type="button" class="btn main-clr text-white rounded-5 px-3 py-1 mt-3 ms-auto">Send</button>
+        </div>
+      </div>
+
+      <div class="w-50 pt-66 d-flex flex-column justify-content-start align-items-center">
+        <h2 class="fw-bold">All Reviews</h2>
+
+      </div>
+    </div>
+  </section>
+
+
+
+
+<!--JS----------------------------------------------------------------------------------------------->
+  <script src="bootstrap-5.3.5-dist/js/bootstrap.min.js"></script>
+  <script src="./bootstrap-5.3.5-dist/js/bootstrap.bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>
