@@ -104,7 +104,7 @@ if (searchInput) {
       (p.email && p.email.toLowerCase().includes(searchValue)) ||
       (p.diseases && p.diseases.toLowerCase().includes(searchValue))
     );
-    
+    //============filter patients==========
     displayPatients(filteredPatients);
   });
 }
