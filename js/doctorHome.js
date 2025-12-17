@@ -80,6 +80,46 @@ async function loadTodayAppointments() {
   }
 }
 
+
+//================doctor review js==========
+
+    if (!currentName || !currentDoctorId) {
+      alert('Please login as doctor');
+      window.location.href = 'type.html';
+    }
+
+    const reviewsContainer = document.getElementById('reviewsContainer');
+    const doctorId = parseInt(currentDoctorId);
+
+    function loadDoctorReviews() {
+      if (!reviewsContainer) return;
+
+      const reviews = JSON.parse(localStorage.getItem('doctorReviews')) || [];
+      const doctorReviews = reviews.filter(r => r.doctor_id === doctorId);
+
+      reviewsContainer.innerHTML = '';
+
+      if (doctorReviews.length === 0) {
+        reviewsContainer.innerHTML = '<p class="fw-bold">No reviews yet</p>';
+        return;
+      }
+
+      doctorReviews.forEach(review => {
+        const div = document.createElement('div');
+        div.className = 'bg-white p-3 rounded-4 w-100 my-2';
+
+        div.innerHTML = `
+          <p class="fw-bold mb-1">${review.patient_name}</p>
+          <p class="mb-1">${review.comment}</p>
+          <small class="text-muted">${new Date(review.date).toLocaleDateString()}</small>
+        `;
+
+        reviewsContainer.appendChild(div);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDoctorReviews);
+
 // ==================== Logout ====================
 var logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {

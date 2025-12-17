@@ -1,15 +1,15 @@
+// ==================== Session Check ====================
+const currentPatientId = sessionStorage.getItem('currentPatientId');
 
-// ==================== Get Appointment ID ====================
-const appointmentId = localStorage.getItem('currentAppointmentId');
-
-if (!appointmentId) {
-    alert('No appointment selected');
-    window.location.href = 'home.html';
+if (!currentPatientId) {
+  alert('Please login first');
+  window.location.href = 'index.html';
 }
 
 // ==================== API Configuration ====================
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
+// ==================== Generic API Call ====================
 const apiCall = async (endpoint, options = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -20,7 +20,7 @@ const apiCall = async (endpoint, options = {}) => {
       ...options,
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(data.error || 'Something went wrong');
@@ -38,9 +38,22 @@ const getAppointmentById = async (id) => {
   return await apiCall(`/appointments/${id}`);
 };
 
+const getPatientAppointments = async () => {
+  return await apiCall(
+    `/appointments?patient_id=${currentPatientId}&status=scheduled`
+  );
+};
+
 const cancelAppointment = async (id) => {
   return await apiCall(`/appointments/${id}`, {
     method: 'DELETE',
+  });
+};
+
+const editAppointmentDate = async (id, newDateTime) => {
+  return await apiCall(`/appointments/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ appointment_date: newDateTime }),
   });
 };
 
@@ -50,72 +63,98 @@ const apptTime = document.getElementById('apptTime');
 const editBtn = document.getElementById('editBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 
+// ==================== Resolve Appointment ID ====================
+async function resolveAppointmentId() {
+  let appointmentId = localStorage.getItem('currentAppointmentId');
+
+  if (appointmentId) return appointmentId;
+
+  const result = await getPatientAppointments();
+
+  if (!result.success || result.data.length === 0) {
+    alert('No upcoming appointments');
+    window.location.href = 'home.html';
+    return null;
+  }
+
+  result.data.sort(
+    (a, b) => new Date(b.appointment_date) - new Date(a.appointment_date)
+  );
+
+  appointmentId = result.data[0].id;
+  localStorage.setItem('currentAppointmentId', appointmentId);
+
+  return appointmentId;
+}
+
 // ==================== Load Appointment Details ====================
+let appointmentId = null;
+
 async function loadAppointmentDetails() {
+  appointmentId = await resolveAppointmentId();
+  if (!appointmentId) return;
+
   const result = await getAppointmentById(appointmentId);
 
-  if (result.success) {
-    const appointment = result.data;
-    
-    // Format date and time
-    const dt = new Date(appointment.appointment_date);
-    const date = dt.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      weekday: 'long'
-    });
-    const time = dt.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-
-    // Display appointment details
-    if (apptDate) apptDate.textContent = date;
-    if (apptTime) apptTime.textContent = time;
-
-    console.log('Appointment loaded:', appointment);
-
-  } else {
-    alert('Failed to load appointment: ' + result.error);
+  if (!result.success) {
+    alert('Failed to load appointment');
     window.location.href = 'home.html';
+    return;
   }
+
+  const appointment = result.data;
+  const dt = new Date(appointment.appointment_date);
+
+  if (apptDate) {
+    apptDate.textContent = dt.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  if (apptTime) {
+    apptTime.textContent = dt.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  console.log('Appointment loaded:', appointment);
 }
 
 // ==================== Edit Button ====================
-if (editBtn) {
-  editBtn.addEventListener('click', () => {
-    // Go back to booking page (which will load this appointment for editing)
-    window.location.href = 'booking.html';
-  });
-}
+editBtn.addEventListener('click', () => {
+  localStorage.setItem('currentAppointmentId', appointmentId);
+  window.location.href = 'booking.html';
+});
+
 
 // ==================== Cancel Button ====================
 if (cancelBtn) {
   cancelBtn.addEventListener('click', async () => {
-    const confirmation = confirm('Are you sure you want to cancel this appointment?');
-    
-    if (confirmation) {
-      // Disable button
-      cancelBtn.disabled = true;
-      cancelBtn.textContent = 'Cancelling...';
+    const confirmation = confirm(
+      'Are you sure you want to cancel this appointment?'
+    );
+    if (!confirmation) return;
 
-      const result = await cancelAppointment(appointmentId);
+    cancelBtn.disabled = true;
+    cancelBtn.textContent = 'Cancelling...';
 
-      if (result.success) {
-        alert('Appointment cancelled successfully! ');
-        localStorage.removeItem('currentAppointmentId');
-        window.location.href = 'home.html';
-      } else {
-        alert('Failed to cancel appointment: ' + result.error);
-        cancelBtn.disabled = false;
-        cancelBtn.textContent = 'Cancel Appointment';
-      }
+    const result = await cancelAppointment(appointmentId);
+
+    if (result.success) {
+      alert('Appointment cancelled successfully');
+      localStorage.removeItem('currentAppointmentId');
+      window.location.href = 'home.html';
+    } else {
+      alert(result.error);
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = 'Cancel Appointment';
     }
   });
 }
 
 // ==================== Initialize ====================
-document.addEventListener('DOMContentLoaded', function() {
-  loadAppointmentDetails();
-});
+document.addEventListener('DOMContentLoaded', loadAppointmentDetails);
